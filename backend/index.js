@@ -1,30 +1,45 @@
+// index.js
 const express = require("express");
 const cors = require("cors");
-const mysql = require("mysql");
+const mysql = require("mysql2/promise"); // Using mysql2 for promise support
 const cookieParser = require("cookie-parser");
+require('dotenv').config(); // Load environment variables
+
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:3000", credentials: true }))
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
-const mac_db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "interview",
-  })
-  
-  mac_db.connect((err) => {
-    if (err) {
-      console.log("Error connecting to Db")
-      throw err
-    }
-    console.log("Connection established")
-  })
-  
-  global.mac_db = mac_db
-  
-  app.listen(8000, () => {
-    console.log("Running on port 8000")
-  })
+// Create a MySQL connection pool
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+// Middleware to inject the pool into the request object
+app.use((req, res, next) => {
+  req.db = pool;
+  next();
+});
+
+// Example route
+app.get("/", async (req, res) => {
+  try {
+    res.json({ String: "Hello" });
+  } catch (err) {
+    console.error("Error executing query", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Start the server
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+  console.log(`Running on port ${PORT}`);
+});
