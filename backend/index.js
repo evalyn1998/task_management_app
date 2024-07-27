@@ -39,6 +39,35 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the backend!" });
 });
 
+app.use((req, res, next) => {
+  if (Object.keys(req.query).length !== 0) {
+    return res.status(400).send({ status: 400 })
+  }
+  next()
+})
+
+// Catch incorrect JSON format - Missing commas etc
+app.use((error, req, res, next) => {
+  if (error instanceof SyntaxError && error.status === 400 && "body" in error) {
+    return res.status(400).send({ status: 400 })
+  }
+  next()
+})
+
+// Catech incorrect passing of parameters
+app.use((req, res, next) => {
+  try {
+    decodeURIComponent(req.path)
+  } catch (error) {
+    return res.status(400).send({ status: 400 })
+  }
+  next()
+})
+
+app.all("*", (req, res) => {
+  return res.status(404).send({ status: 404 })
+})
+
 // Start the server
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
