@@ -70,3 +70,7 @@ body {
 .task-column:not(:last-child) {
   margin-right: 20px;
 }
+
+.add-icon-button {
+  padding: 0;
+}

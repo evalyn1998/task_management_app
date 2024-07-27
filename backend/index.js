@@ -54,7 +54,6 @@ app.use((error, req, res, next) => {
   next()
 })
 
-// Catech incorrect passing of parameters
 app.use((req, res, next) => {
   try {
     decodeURIComponent(req.path)

@@ -19,9 +19,9 @@ exports.getAllTasks = async (req, res) => {
 //create task
 exports.createTask = async (req, res) => {
     const { task_name, task_description, task_status } = req.body;
-    const createTask = "INSERT INTO tasks (task_name, task_description) VALUES (?, ?);";
+    const createTask = "INSERT INTO tasks (task_name, task_description, task_status) VALUES (?, ?, ?);";
     try {
-        const [insertResult] = await db.query(createTask, [task_name, task_description]);
+        const [insertResult] = await db.query(createTask, [task_name, task_description, task_status]);
         res.status(201).send({
             message: "Task created",
             insertResult
