@@ -57,7 +57,7 @@ exports.authenticateUser = async (req, res) => {
         // Compare the provided password with the hashed password stored in the database
         const isPasswordValid = bcrypt.compareSync(user_password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).send({ error: "Authentication failed. Wrong password." });
+            return res.status(401).send({ error: "Authentication failed" });
         }
         // Generate JWT token
         const token = jwt.sign(

@@ -7,7 +7,6 @@ import "../css/register.css"
 import { toast } from 'react-toastify';
 
 
-
 const validationSchema = Yup.object().shape({
     email: Yup.string().required("Email is a required field").email("Invalid Email format"),
     password: Yup.string().required("Password is a required field").min(8,"Password must be of 8 characters"),
