@@ -1,10 +1,10 @@
-// src/components/Kanban.js
 import React, { useState } from 'react';
 import { Box, Button, Container, CssBaseline, Typography, IconButton } from '@mui/material';
 import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
-import AddIcon from '@mui/icons-material/Add'; // Import the plus icon
-import TaskModal from './TaskModal'; // Import the TaskModal component
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete'; // Import the delete icon
+import TaskModal from './TaskModal';
 import '../css/kanban.css';
 
 function Kanban() {
@@ -46,18 +46,17 @@ function Kanban() {
     }
   };
 
-  const handleAddTask = (task, column) => {
+  const handleAddTask = (column) => {
     setModalOpen(true);
-    // const newTaskName = prompt('Enter new task name:');
-    // if (newTaskName) {
-    //   const newDescription = prompt('Enter description for the new task:');
-    //   if (newDescription) {
-    //     setTasks(prevTasks => ({
-    //       ...prevTasks,
-    //       [column]: [...prevTasks[column], { name: newTaskName, description: newDescription, status: column }]
-    //     }));
-    //   }
-    // }
+    setSelectedTask({ name: '', description: '', status: column });
+  };
+
+  const handleDeleteTask = (taskToDelete, column) => {
+    const updatedTasks = tasks[column].filter(task => task.name !== taskToDelete.name);
+    setTasks(prevTasks => ({
+      ...prevTasks,
+      [column]: updatedTasks
+    }));
   };
 
   return (
@@ -80,8 +79,11 @@ function Kanban() {
                 </IconButton>
               </Box>
               {taskList.map((task, index) => (
-                <Box key={index} className="task-item" onClick={() => handleTaskClick(task, column)}>
-                  <Typography>{task.name}</Typography>
+                <Box key={index} className="task-item">
+                  <Typography onClick={() => handleTaskClick(task, column)}>{task.name}</Typography>
+                  <IconButton color="secondary" onClick={() => handleDeleteTask(task, column)} className="delete-icon-button">
+                    <DeleteIcon />
+                  </IconButton>
                 </Box>
               ))}
             </Box>
