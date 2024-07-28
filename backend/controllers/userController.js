@@ -71,18 +71,22 @@ exports.authenticateUser = async (req, res) => {
     }
 };
 
-exports.authenticateToken = async (req, res) => {
+
+exports.authenticateToken = (req, res) => {
     const { jwtToken } = req.body;
-    if(token === undefined || token === null){
-        res.send(400).send({error: "Token is required"})
+
+    if (jwtToken === undefined || jwtToken === null) {
+        return res.status(400).send({ error: "Token is required" });
     }
-    try{
-        const decodedToken = jwt.verify(jwtToken,process.env.JWT_SECRET);
-        return res.status(200).send({valid : true, decodedToken});
-    }
-    catch(err){
-        return res.status(401).send({valid : false})
+
+    try {
+        const decodedToken = jwt.verify(jwtToken, process.env.JWT_SECRET);
+        return res.status(200).send({ valid: true, decodedToken });
+    } catch (err) {
+        console.error(err);
+        return res.status(401).send({ valid: false });
     }
 };
+
 
 
