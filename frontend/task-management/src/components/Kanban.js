@@ -1,81 +1,106 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, Container, CssBaseline, Typography, IconButton } from '@mui/material';
 import { useAuth } from '../AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete'; // Import the delete icon
+import DeleteIcon from '@mui/icons-material/Delete';
 import TaskModal from './TaskModal';
 import '../css/kanban.css';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 function Kanban() {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [tasks, setTasks] = useState({
-    todo: [{ name: 'Task 1', description: 'Description for Task 1', status: 'todo' }, { name: 'Task 2', description: 'Description for Task 2', status: 'todo' }],
-    inProgress: [{ name: 'Task 3', description: 'Description for Task 3', status: 'inProgress' }],
-    done: [{ name: 'Task 4', description: 'Description for Task 4', status: 'done' }]
+    todo: [],
+    inProgress: [],
+    done: []
   });
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [modalMode, setModalMode] = useState('add');
+  const [initialStatus, setInitialStatus] = useState('');
+
+  useEffect(() => {
+    toast.info("Click on the task to edit!")
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/getAllTasks');
+      const tasks = response.data.reduce((res, task) => {
+        if (task.task_status === 'todo') {
+          res.todo.push(task);
+        } else if (task.task_status === 'inProgress') {
+          res.inProgress.push(task);
+        } else if (task.task_status === 'done') {
+          res.done.push(task);
+        }
+        return res;
+      }, { todo: [], inProgress: [], done: [] });
+      setTasks(tasks);
+    } catch (error) {
+      console.error('Error fetching tasks', error);
+    }
+  };
 
   const handleLogout = () => {
+    localStorage.clear();
     logout();
     navigate('/');
   };
 
-  const handleTaskClick = (task, column) => {
-    setSelectedTask({ ...task, column });
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setModalMode('edit');
     setModalOpen(true);
   };
 
   const handleModalClose = () => {
     setModalOpen(false);
+    setSelectedTask(null);
   };
 
-  const updateTaskAPI = async (updatedTask) =>{
-
-  }
-
-  const addTaskAPI = async (updatedTask) =>{
-    console.log(updatedTask);
-  }
-
   const handleSaveTask = async (updatedTask) => {
-    if (selectedTask) {
-      const { column } = selectedTask;
-      let updatedTasks;
-
-      if (selectedTask.name) {
-        // Existing task - call update API
-        await updateTaskAPI(updatedTask);
-        updatedTasks = tasks[column].map(task =>
-          task.name === selectedTask.name ? { ...updatedTask } : task
-        );
+    try {
+      if (modalMode === 'edit') {
+        const response = await axios.post(`http://localhost:8000/updateTask`, updatedTask);
+        toast.success(response.data.message);
       } else {
-        // New task - call add API
-        await addTaskAPI(updatedTask);
-        updatedTasks = [...tasks[column], updatedTask];
+        const response = await axios.post('http://localhost:8000/createTask', updatedTask);
+        toast.success(response.data.message);
       }
-
-      setTasks(prevTasks => ({
-        ...prevTasks,
-        [column]: updatedTasks
-      }));
+      fetchTasks();
+      setModalOpen(false);
+      setSelectedTask(null);
+    } catch (error) {
+      console.error('Error saving task', error);
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message);
+      }
     }
   };
 
-  const handleAddTask = (column) => {
+  const handleAddTask = (status) => {
+    setSelectedTask({ task_name: '', task_description: '', task_status: status });
+    setInitialStatus(status); // Set initial status here
+    setModalMode('add');
     setModalOpen(true);
-    setSelectedTask({ name: '', description: '', status: column });
   };
 
-  const handleDeleteTask = (taskToDelete, column) => {
-    const updatedTasks = tasks[column].filter(task => task.name !== taskToDelete.name);
-    setTasks(prevTasks => ({
-      ...prevTasks,
-      [column]: updatedTasks
-    }));
+  const handleDeleteTask = async (taskToDelete) => {
+    console.log(taskToDelete);
+    try {
+      const response = await axios.post('http://localhost:8000/deleteTask',taskToDelete);
+      toast.success(response.data.message);
+      fetchTasks();
+    } catch (error) {
+      console.error('Error deleting task', error);
+      toast.error(error.response.data.message);
+    }
   };
 
   return (
@@ -98,9 +123,9 @@ function Kanban() {
                 </IconButton>
               </Box>
               {taskList.map((task, index) => (
-                <Box key={index} className="task-item">
-                  <Typography onClick={() => handleTaskClick(task, column)}>{task.name}</Typography>
-                  <IconButton color="secondary" onClick={() => handleDeleteTask(task, column)} className="delete-icon-button">
+                <Box key={task.id || index} className="task-item">
+                  <Typography onClick={() => handleTaskClick(task)}>{task.task_name}</Typography>
+                  <IconButton color="secondary" onClick={() => handleDeleteTask(task)} className="delete-icon-button">
                     <DeleteIcon />
                   </IconButton>
                 </Box>
@@ -115,6 +140,8 @@ function Kanban() {
         onClose={handleModalClose}
         task={selectedTask}
         onSave={handleSaveTask}
+        mode={modalMode}
+        initialStatus={initialStatus}
       />
     </Container>
   );

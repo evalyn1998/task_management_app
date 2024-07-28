@@ -1,30 +1,36 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required('Task name is required'),
-  description: Yup.string().required('Description is required'),
-  status: Yup.string().required('Status is required')
+  task_name: Yup.string().required('Task name is required'),
+  task_description: Yup.string().required('Description is required'),
+  task_status: Yup.string().required('Status is required')
 });
 
-function TaskModal({ open, onClose, task, onSave }) {
-  // Initialize Formik with the current task data
-  const initialValues = {
-    name: '',
-    description: '',
-    status: ''
-  };
+function TaskModal({ open, onClose, task, onSave, mode, initialStatus }) {
+  const [initialValues, setInitialValues] = useState({
+    task_name: '',
+    task_description: '',
+    task_status: initialStatus || ''
+  });
 
   useEffect(() => {
     if (task) {
-      // Set form data when task changes
-      initialValues.name = task.name;
-      initialValues.description = task.description;
-      initialValues.status = task.status;
+      setInitialValues({
+        task_name: task.task_name,
+        task_description: task.task_description,
+        task_status: task.task_status
+      });
+    } else {
+      setInitialValues({
+        task_name: '',
+        task_description: '',
+        task_status: initialStatus || ''
+      });
     }
-  }, [task]);
+  }, [task, initialStatus]);
 
   const statusOptions = [
     { value: 'todo', label: 'Todo' },
@@ -34,12 +40,17 @@ function TaskModal({ open, onClose, task, onSave }) {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Edit Task</DialogTitle>
+      <DialogTitle>{mode === 'edit' ? 'Edit Task' : 'Add Task'}</DialogTitle>
       <Formik
+        enableReinitialize
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={(values) => {
-          onSave(values);
+          if (mode === 'edit') {
+            onSave({ ...task, ...values }); // Update existing task
+          } else {
+            onSave(values); // Add new task
+          }
           onClose();
         }}
       >
@@ -49,38 +60,38 @@ function TaskModal({ open, onClose, task, onSave }) {
               <Field
                 as={TextField}
                 margin="dense"
-                name="name"
+                name="task_name"
                 label="Task Name"
                 fullWidth
                 variant="outlined"
                 onChange={handleChange}
                 onBlur={handleBlur}
-                value={values.name}
-                helperText={touched.name ? errors.name : ''}
-                error={touched.name && Boolean(errors.name)}
+                value={values.task_name}
+                helperText={touched.task_name ? errors.task_name : ''}
+                error={touched.task_name && Boolean(errors.task_name)}
               />
               <Field
                 as={TextField}
                 margin="dense"
-                name="description"
+                name="task_description"
                 label="Description"
                 fullWidth
                 variant="outlined"
                 onChange={handleChange}
                 onBlur={handleBlur}
-                value={values.description}
-                helperText={touched.description ? errors.description : ''}
-                error={touched.description && Boolean(errors.description)}
+                value={values.task_description}
+                helperText={touched.task_description ? errors.task_description : ''}
+                error={touched.task_description && Boolean(errors.task_description)}
               />
-              <FormControl fullWidth variant="outlined" margin="dense" error={touched.status && Boolean(errors.status)}>
+              <FormControl fullWidth variant="outlined" margin="dense" error={touched.task_status && Boolean(errors.task_status)}>
                 <InputLabel>Status</InputLabel>
                 <Field
                   as={Select}
-                  name="status"
+                  name="task_status"
                   label="Status"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  value={values.status}
+                  value={values.task_status}
                 >
                   {statusOptions.map(option => (
                     <MenuItem key={option.value} value={option.value}>
@@ -88,8 +99,8 @@ function TaskModal({ open, onClose, task, onSave }) {
                     </MenuItem>
                   ))}
                 </Field>
-                {touched.status && Boolean(errors.status) && (
-                  <div style={{ color: '#f44336', marginTop: '0.75rem', fontSize: '0.75rem' }}>{errors.status}</div>
+                {touched.task_status && Boolean(errors.task_status) && (
+                  <div style={{ color: '#f44336', marginTop: '0.75rem', fontSize: '0.75rem' }}>{errors.task_status}</div>
                 )}
               </FormControl>
             </DialogContent>

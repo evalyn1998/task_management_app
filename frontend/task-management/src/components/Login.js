@@ -19,6 +19,7 @@ const handleSubmit = async (values, { setSubmitting, setErrors }, login,navigate
       user_password: values.password
     });
     toast.success(response.data.message);
+    localStorage.setItem("user", response.data.token);
     login();
     navigate('/kanban');
   }

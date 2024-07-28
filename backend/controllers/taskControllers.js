@@ -33,7 +33,7 @@ exports.createTask = async (req, res) => {
 };
 //update task
 exports.updateTask = async (req, res) => {
-    const { task_id, task_name, task_description, task_status } = req.body;
+    const { id, task_name, task_description, task_status } = req.body;
     const updateTaskQuery = `
         UPDATE tasks 
         SET task_name = ?, task_description = ?, task_status = ? 
@@ -41,7 +41,7 @@ exports.updateTask = async (req, res) => {
     `;
 
     try {
-        const [updateResult] = await db.query(updateTaskQuery, [task_name, task_description, task_status, task_id]);
+        const [updateResult] = await db.query(updateTaskQuery, [task_name, task_description, task_status, id]);
         if (updateResult.affectedRows === 0) {
             res.status(404).send({ message: "Task not found" });
         } else {
@@ -58,13 +58,13 @@ exports.updateTask = async (req, res) => {
 
 //delete task
 exports.deleteTask = async (req, res) => {
-    const { task_id } = req.body;
+    const { id } = req.body;
     const deleteTaskQuery = `
         DELETE FROM tasks 
         WHERE id = ?;
     `;
     try {
-        const [deleteResult] = await db.query(deleteTaskQuery, [task_id]);
+        const [deleteResult] = await db.query(deleteTaskQuery, id);
         if (deleteResult.affectedRows === 0) {
             res.status(404).send({ message: "Task not found" });
         } else {
