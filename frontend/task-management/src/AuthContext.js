@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -6,13 +7,29 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const storedToken = localStorage.getItem('user');
-        if (storedToken) {
-            // Optionally, you can add more logic here to validate the token
-            setIsAuthenticated(true);
+    const verifyToken = async (token) => {
+        try {
+            const response = await axios.post("http://localhost:8000/authenticateToken", { jwtToken: token });
+            if (response.data.valid) {
+                setIsAuthenticated(true);
+
+            } else {
+                localStorage.removeItem('user');
+
+            }
+        } catch (error) {
+            console.error("Error verifying token", error);
+            localStorage.removeItem('user');
         }
-        setLoading(false);
+    };
+
+    useEffect(() => {
+        const storedToken = localStorage.getItem('user')
+        if (storedToken) {
+            verifyToken(storedToken).finally(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
     }, []);
 
     const login = () => {
@@ -21,6 +38,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         setIsAuthenticated(false);
+        localStorage.removeItem('user');
     };
 
     return (

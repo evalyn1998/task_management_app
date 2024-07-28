@@ -10,7 +10,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 function Kanban() {
-  const { isAuthenticated, logout, loading } = useAuth();
+  const { isAuthenticated, loading, logout } = useAuth();
   const navigate = useNavigate();
   const [tasks, setTasks] = useState({
     todo: [],
@@ -24,16 +24,15 @@ function Kanban() {
   const [initialStatus, setInitialStatus] = useState('');
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      navigate('/login');
-    } else if (isAuthenticated) {
-      fetchTasks();
+    if (!loading) {
+      if (isAuthenticated) {
+        fetchTasks();
+      } else {
+        navigate('/login');
+      }
     }
   }, [loading, isAuthenticated, navigate]);
 
-  useEffect(() => {
-    toast.info("Click on the task to edit!");
-  }, []);
   const fetchTasks = async () => {
     try {
       const response = await axios.get('http://localhost:8000/getAllTasks');
@@ -55,7 +54,7 @@ function Kanban() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/login');
   };
 
   const handleTaskClick = (task) => {
@@ -97,6 +96,7 @@ function Kanban() {
   };
 
   const handleDeleteTask = async (taskToDelete) => {
+    console.log(taskToDelete);
     try {
       const response = await axios.post('http://localhost:8000/deleteTask', taskToDelete);
       toast.success(response.data.message);
@@ -106,6 +106,10 @@ function Kanban() {
       toast.error(error.response.data.message);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Container component="main" maxWidth="false" disableGutters>
