@@ -49,7 +49,7 @@ To install and run this application locally, follow these steps:
     ```
 
 3. **Start the backend**:
-   You would need a mysql server as the database im using mysql
+   You would need a mysql server as the database is mysql
    
     ```sh
     cd backend
