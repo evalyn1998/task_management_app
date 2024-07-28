@@ -78,6 +78,7 @@ function TaskModal({ open, onClose, task, onSave, mode, initialStatus }) {
                 fullWidth
                 variant="outlined"
                 onChange={handleChange}
+                multiline
                 onBlur={handleBlur}
                 value={values.task_description}
                 helperText={touched.task_description ? errors.task_description : ''}

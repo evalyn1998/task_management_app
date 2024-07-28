@@ -7,16 +7,20 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import "./css/app.css"
+import './css/app.css';
 
 function App() {
     return (
         <AuthProvider>
             <Router>
                 <Routes>
-                    <Route path="/register" Component={Register} />
-                    <Route path="/" Component={Login} />
-                    <Route path="/kanban" element={<ProtectedRoute Component={Kanban} />} /> 
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/" element={<Login />} />
+                    <Route path="/kanban" element={
+                        <ProtectedRoute>
+                            <Kanban />
+                        </ProtectedRoute>
+                    } />
                 </Routes>
                 <ToastContainer
                     autoClose={2000}

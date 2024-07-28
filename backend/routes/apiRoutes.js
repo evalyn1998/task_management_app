@@ -8,6 +8,7 @@ apiRoutes.use(cors())
 apiRoutes.post("/createUser",userController.createUser);
 apiRoutes.post("/authenticateUser",userController.authenticateUser);
 apiRoutes.get("/allUser",userController.getAllUsers);
+apiRoutes.post("/authenticateToken",userController.authenticateToken);
 
 apiRoutes.post("/createTask" , taskController.createTask);
 apiRoutes.post("/updateTask" , taskController.updateTask);

@@ -10,7 +10,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 function Kanban() {
-  const { logout } = useAuth();
+  const { isAuthenticated, logout, loading } = useAuth();
   const navigate = useNavigate();
   const [tasks, setTasks] = useState({
     todo: [],
@@ -24,10 +24,16 @@ function Kanban() {
   const [initialStatus, setInitialStatus] = useState('');
 
   useEffect(() => {
-    toast.info("Click on the task to edit!")
-    fetchTasks();
-  }, []);
+    if (!loading && !isAuthenticated) {
+      navigate('/login');
+    } else if (isAuthenticated) {
+      fetchTasks();
+    }
+  }, [loading, isAuthenticated, navigate]);
 
+  useEffect(() => {
+    toast.info("Click on the task to edit!");
+  }, []);
   const fetchTasks = async () => {
     try {
       const response = await axios.get('http://localhost:8000/getAllTasks');
@@ -48,7 +54,6 @@ function Kanban() {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
     logout();
     navigate('/');
   };
@@ -86,15 +91,14 @@ function Kanban() {
 
   const handleAddTask = (status) => {
     setSelectedTask({ task_name: '', task_description: '', task_status: status });
-    setInitialStatus(status); // Set initial status here
+    setInitialStatus(status);
     setModalMode('add');
     setModalOpen(true);
   };
 
   const handleDeleteTask = async (taskToDelete) => {
-    console.log(taskToDelete);
     try {
-      const response = await axios.post('http://localhost:8000/deleteTask',taskToDelete);
+      const response = await axios.post('http://localhost:8000/deleteTask', taskToDelete);
       toast.success(response.data.message);
       fetchTasks();
     } catch (error) {
