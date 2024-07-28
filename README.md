@@ -38,7 +38,8 @@ To install and run this application locally, follow these steps:
 
 1. **Clone the repository**:
     ```sh
-    
+    git clone https://github.com/evalyn1998/interview.git
+    cd task-management
     
     ```
 
@@ -47,7 +48,15 @@ To install and run this application locally, follow these steps:
     npm install
     ```
 
-3. **Start the application**:
+3. **Start the backend**:
+   You would need a mysql server as the database im using mysql
+   
+    ```sh
+    cd backend
+    node index.js
+    ```
+
+4. **Start the application**:
     ```sh
     npm start
     ```
