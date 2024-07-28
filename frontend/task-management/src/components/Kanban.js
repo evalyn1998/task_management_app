@@ -28,7 +28,7 @@ function Kanban() {
       if (isAuthenticated) {
         fetchTasks();
       } else {
-        navigate('/login');
+        navigate('/');
       }
     }
   }, [loading, isAuthenticated, navigate]);
@@ -54,7 +54,7 @@ function Kanban() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const handleTaskClick = (task) => {
