@@ -33,12 +33,31 @@ function Kanban() {
     setModalOpen(false);
   };
 
-  const handleSaveTask = (updatedTask) => {
+  const updateTaskAPI = async (updatedTask) =>{
+
+  }
+
+  const addTaskAPI = async (updatedTask) =>{
+    console.log(updatedTask);
+  }
+
+  const handleSaveTask = async (updatedTask) => {
     if (selectedTask) {
       const { column } = selectedTask;
-      const updatedTasks = tasks[column].map(task =>
-        task.name === selectedTask.name ? { ...updatedTask } : task
-      );
+      let updatedTasks;
+
+      if (selectedTask.name) {
+        // Existing task - call update API
+        await updateTaskAPI(updatedTask);
+        updatedTasks = tasks[column].map(task =>
+          task.name === selectedTask.name ? { ...updatedTask } : task
+        );
+      } else {
+        // New task - call add API
+        await addTaskAPI(updatedTask);
+        updatedTasks = [...tasks[column], updatedTask];
+      }
+
       setTasks(prevTasks => ({
         ...prevTasks,
         [column]: updatedTasks

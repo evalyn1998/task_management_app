@@ -1,6 +1,5 @@
-// src/components/TaskModal.js
 import React, { useEffect } from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 
@@ -26,6 +25,12 @@ function TaskModal({ open, onClose, task, onSave }) {
       initialValues.status = task.status;
     }
   }, [task]);
+
+  const statusOptions = [
+    { value: 'todo', label: 'Todo' },
+    { value: 'inProgress', label: 'In Progress' },
+    { value: 'done', label: 'Done' }
+  ];
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -67,19 +72,26 @@ function TaskModal({ open, onClose, task, onSave }) {
                 helperText={touched.description ? errors.description : ''}
                 error={touched.description && Boolean(errors.description)}
               />
-              <Field
-                as={TextField}
-                margin="dense"
-                name="status"
-                label="Status"
-                fullWidth
-                variant="outlined"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.status}
-                helperText={touched.status ? errors.status : ''}
-                error={touched.status && Boolean(errors.status)}
-              />
+              <FormControl fullWidth variant="outlined" margin="dense" error={touched.status && Boolean(errors.status)}>
+                <InputLabel>Status</InputLabel>
+                <Field
+                  as={Select}
+                  name="status"
+                  label="Status"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.status}
+                >
+                  {statusOptions.map(option => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Field>
+                {touched.status && Boolean(errors.status) && (
+                  <div style={{ color: '#f44336', marginTop: '0.75rem', fontSize: '0.75rem' }}>{errors.status}</div>
+                )}
+              </FormControl>
             </DialogContent>
             <DialogActions>
               <Button onClick={onClose} color="primary">
