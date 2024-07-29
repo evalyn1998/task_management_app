@@ -19,13 +19,22 @@ const handleSubmit = async (values, { setSubmitting, setErrors }, login, navigat
       user_password: values.password
     });
     toast.success(response.data.message);
+
+    // Store token in localStorage
     localStorage.setItem('user', response.data.token);
-    login();
+
+    // Get user ID from token (optional, if needed)
+    const tokenData = JSON.parse(atob(response.data.token.split('.')[1]));
+    const userId = tokenData.id;
+
+    // Call login function with user ID
+    login(response.data.token,userId);
+    
     navigate('/kanban');
   } catch (error) {
     console.error('Error in submitting form', error);
     if (error.response && error.response.data) {
-      setErrors({ general: error.response.data.message });
+      setErrors({ general: error.response.data.error });
       toast.error(error.response.data.error);
     }
   } finally {

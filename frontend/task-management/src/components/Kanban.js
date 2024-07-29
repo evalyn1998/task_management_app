@@ -10,7 +10,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 function Kanban() {
-  const { isAuthenticated, loading, logout } = useAuth();
+  const { isAuthenticated, loading, logout, userId } = useAuth(); 
   const navigate = useNavigate();
   const [tasks, setTasks] = useState({
     todo: [],
@@ -35,7 +35,7 @@ function Kanban() {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/getAllTasks');
+      const response = await axios.post('http://localhost:8000/getAllTasks', {user_id:userId});
       const tasks = response.data.reduce((res, task) => {
         if (task.task_status === 'todo') {
           res.todo.push(task);
@@ -71,10 +71,10 @@ function Kanban() {
   const handleSaveTask = async (updatedTask) => {
     try {
       if (modalMode === 'edit') {
-        const response = await axios.post(`http://localhost:8000/updateTask`, updatedTask);
+        const response = await axios.post('http://localhost:8000/updateTask', { ...updatedTask, user_id: userId });
         toast.success(response.data.message);
       } else {
-        const response = await axios.post('http://localhost:8000/createTask', updatedTask);
+        const response = await axios.post('http://localhost:8000/createTask', { ...updatedTask, user_id: userId });
         toast.success(response.data.message);
       }
       fetchTasks();
@@ -82,8 +82,8 @@ function Kanban() {
       setSelectedTask(null);
     } catch (error) {
       console.error('Error saving task', error);
-      if (error.response && error.response.data) {
-        toast.error(error.response.data.message);
+      if (error.response && error.response.error.message) {
+        toast.error(error.response.error.message);
       }
     }
   };
@@ -96,9 +96,8 @@ function Kanban() {
   };
 
   const handleDeleteTask = async (taskToDelete) => {
-    console.log(taskToDelete);
     try {
-      const response = await axios.post('http://localhost:8000/deleteTask', taskToDelete);
+      const response = await axios.post('http://localhost:8000/deleteTask', { ...taskToDelete, user_id: userId });
       toast.success(response.data.message);
       fetchTasks();
     } catch (error) {

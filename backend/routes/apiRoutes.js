@@ -13,7 +13,7 @@ apiRoutes.post("/authenticateToken",userController.authenticateToken);
 apiRoutes.post("/createTask" , taskController.createTask);
 apiRoutes.post("/updateTask" , taskController.updateTask);
 apiRoutes.post("/deleteTask" , taskController.deleteTask);
-apiRoutes.get("/getAllTasks" , taskController.getAllTasks);
+apiRoutes.post("/getAllTasks" , taskController.getAllTasks);
 
 
 module.exports = apiRoutes;

@@ -7,7 +7,7 @@ app.use(express.json());
 
 // Get all tasks
 exports.getAllTasks = async (req, res) => {
-    const { user_id } = req.query; // Assuming user_id is provided as a query parameter
+    const { user_id } = req.body; // Assuming user_id is provided as a query parameter
     if (!user_id) {
         return res.status(400).send({ error: "user_id is required" });
     }

@@ -61,7 +61,7 @@ exports.authenticateUser = async (req, res) => {
         }
         // Generate JWT token
         const token = jwt.sign(
-            { id: user.id, email: user.email },
+            { id: user.id },
             process.env.JWT_SECRET
         );
         res.status(200).send({ message: "Authentication successful", token });
@@ -81,7 +81,8 @@ exports.authenticateToken = (req, res) => {
 
     try {
         const decodedToken = jwt.verify(jwtToken, process.env.JWT_SECRET);
-        return res.status(200).send({ valid: true, decodedToken });
+        const user_id =  decodedToken.id;
+        return res.status(200).send({ valid: true, user_id });
     } catch (err) {
         console.error(err);
         return res.status(401).send({ valid: false });
