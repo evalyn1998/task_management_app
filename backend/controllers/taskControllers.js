@@ -5,23 +5,32 @@ const app = express();
 
 app.use(express.json());
 
-
-//get all tasks
+// Get all tasks
 exports.getAllTasks = async (req, res) => {
+    const { user_id } = req.query; // Assuming user_id is provided as a query parameter
+    if (!user_id) {
+        return res.status(400).send({ error: "user_id is required" });
+    }
+
     try {
-        const [result] = await db.query("SELECT * FROM tasks;");
+        const [result] = await db.query("SELECT * FROM tasks WHERE user_id = ?;", [user_id]);
         res.status(200).send(result);
     } catch (err) {
         console.error("Database query error:", err);
         res.status(500).send({ error: "Internal Server Error" });
     }
 };
-//create task
+
+// Create task
 exports.createTask = async (req, res) => {
-    const { task_name, task_description, task_status } = req.body;
-    const createTask = "INSERT INTO tasks (task_name, task_description, task_status) VALUES (?, ?, ?);";
+    const { task_name, task_description, task_status, user_id } = req.body;
+    if (!user_id) {
+        return res.status(400).send({ error: "user_id is required" });
+    }
+
+    const createTaskQuery = "INSERT INTO tasks (task_name, task_description, task_status, user_id) VALUES (?, ?, ?, ?);";
     try {
-        const [insertResult] = await db.query(createTask, [task_name, task_description, task_status]);
+        const [insertResult] = await db.query(createTaskQuery, [task_name, task_description, task_status, user_id]);
         res.status(201).send({
             message: "Task created",
             insertResult
@@ -31,9 +40,14 @@ exports.createTask = async (req, res) => {
         res.status(500).send({ error: "Internal Server Error" });
     }
 };
-//update task
+
+// Update task
 exports.updateTask = async (req, res) => {
     const { id, task_name, task_description, task_status } = req.body;
+    if (!id) {
+        return res.status(400).send({ error: "id is required" });
+    }
+
     const updateTaskQuery = `
         UPDATE tasks 
         SET task_name = ?, task_description = ?, task_status = ? 
@@ -56,15 +70,19 @@ exports.updateTask = async (req, res) => {
     }
 };
 
-//delete task
+// Delete task
 exports.deleteTask = async (req, res) => {
     const { id } = req.body;
+    if (!id) {
+        return res.status(400).send({ error: "id is required" });
+    }
+
     const deleteTaskQuery = `
         DELETE FROM tasks 
         WHERE id = ?;
     `;
     try {
-        const [deleteResult] = await db.query(deleteTaskQuery, id);
+        const [deleteResult] = await db.query(deleteTaskQuery, [id]);
         if (deleteResult.affectedRows === 0) {
             res.status(404).send({ message: "Task not found" });
         } else {
@@ -77,6 +95,4 @@ exports.deleteTask = async (req, res) => {
         console.error("Database query error:", err);
         res.status(500).send({ error: "Internal Server Error" });
     }
-};
-
-
+}
