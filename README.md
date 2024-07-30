@@ -39,7 +39,13 @@ To install and run this application locally, follow these steps:
 1. **Clone the repository**:
     ```sh
     git clone https://github.com/evalyn1998/interview.git
+    
+    [for frontend]
+    cd frontend
     cd task-management
+
+    [for backend]
+    cd backend
     
     ```
 
