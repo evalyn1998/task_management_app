@@ -21,7 +21,7 @@ exports.getAllUsers = async (req, res) => {
 //create user
 exports.createUser = async (req, res) => {
     const { user_email, user_password } = req.body;
-    const hashedPassword = bcrypt.hashSync(user_password); // default salt 10 
+    const hashedPassword = bcrypt.hashSync(user_password);
 
     const checkIfUserExist = "SELECT * FROM users WHERE email = ?;";
     const createUser = "INSERT INTO users (email, password) VALUES (?, ?);";
